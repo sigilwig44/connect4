@@ -295,20 +295,33 @@ public class Connect4 {
 	}
 	
 	public int getScore() {
-		int totalScore = 0;
-		for(int col = 0; col < COLS; col++) {
-			for(int row = 0; row < ROWS; row++) {
-				if(board[row][col] == EMPTY && (row == 0 || board[row - 1][col] != EMPTY)) {
-					totalScore += getVerticalScore(row, col);
-					totalScore += getHorizontalScore(row, col);
-					totalScore += getDiagonalScore(row, col);
+		//int winner = checkForWin();
+		//if(winner == 0) {
+			int totalScore = 0;
+			for(int col = 0; col < COLS; col++) {
+				for(int row = 0; row < ROWS; row++) {
+					if(board[row][col] == EMPTY) {
+						totalScore += getVerticalScore(row, col, Connect4Player.MAXPLAYER)*1.2;
+						totalScore += getHorizontalScore(row, col, Connect4Player.MAXPLAYER)*1.2;
+						totalScore += getDiagonalScore(row, col, Connect4Player.MAXPLAYER)*1.2;
+						totalScore -= getVerticalScore(row, col, Connect4Player.MINPLAYER);
+						totalScore -= getHorizontalScore(row, col, Connect4Player.MINPLAYER);
+						totalScore -= getDiagonalScore(row, col, Connect4Player.MINPLAYER);
+						break;
+					}
 				}
 			}
-		}
-		return totalScore;
+			return totalScore;
+		/*} else if(winner == Connect4Player.MAXPLAYER){
+			return 120;
+		} else if(winner == Connect4Player.MINPLAYER) {
+			return -100;
+		} else {
+			return 0;
+		}*/
 	}
 	
-	public int getVerticalScore(int row, int col) {
+	public int getVerticalScore(int row, int col, int player) {
 		int verticalScore = 0;
 		for(int currentRow = row - 1; currentRow >= 0; currentRow--) {
 			if(board[currentRow][col] == player) {
@@ -319,20 +332,21 @@ public class Connect4 {
 			}
 		}
 		
-		if(verticalScore == 2) {
-			verticalScore *= 3;
-		} else if(verticalScore == 3) {
-			verticalScore *= 100;
-		}
+		if(verticalScore == 2) verticalScore = 10;
+		else if(verticalScore == 3) verticalScore = 100;
+		
+		//float midMultiplier = 2 - (Math.abs(3 - col) / 6);
+		
+		//return (int)(verticalScore * midMultiplier);
 		return verticalScore;
 	}
 	
-	public int getHorizontalScore(int row, int col) {
+	public int getHorizontalScore(int row, int col, int player) {
 		int leftScore = 0;
 		int rightScore = 0;
 		//Check to the left first
-		for(int currentCol = col; currentCol >= 0; currentCol--) {
-			if(board[row][currentCol] ==  player) {
+		for(int currentCol = col - 1; currentCol >= 0; currentCol--) {
+			if(board[row][currentCol] == player) {
 				leftScore++;
 			}
 			else {
@@ -342,8 +356,8 @@ public class Connect4 {
 		
 		
 		//Check to the right next
-		for(int currentCol = col; currentCol < COLS; currentCol++) {
-			if(board[row][currentCol] ==  player) {
+		for(int currentCol = col + 1; currentCol < COLS; currentCol++) {
+			if(board[row][currentCol] == player) {
 				rightScore++;
 			}
 			else {
@@ -351,30 +365,27 @@ public class Connect4 {
 			}
 		}
 		
-		if(rightScore == 2) {
-			rightScore *= 3;
-		} else if(rightScore == 3) {
-			rightScore *= 100;
-		}
+		if(rightScore == 2) rightScore = 10;
+		else if(rightScore == 3) rightScore = 100;
 		
-		if(leftScore == 2) {
-			leftScore *= 2;
-		} else if(leftScore == 3) {
-			leftScore *= 100;
-		}
+		if(leftScore == 2) leftScore = 10;
+		else if(leftScore == 3) leftScore = 100;
 		
-		return leftScore + rightScore;
+		//float midMultiplier = 2 - (Math.abs(3 - col) / 6);
+		
+		//return (int)((leftScore + rightScore) * midMultiplier);
+		return leftScore * rightScore;
 	}
 	
-	public int getDiagonalScore(int row, int col) {
+	public int getDiagonalScore(int row, int col, int player) {
 		int topLeftScore = 0;
 		int topRightScore = 0;
 		int bottomLeftScore = 0;
 		int bottomRightScore = 0;
 		
 		boolean breakOut = false;
-		for(int currentCol = col; currentCol >= 0 && !breakOut; currentCol--) {
-			for(int currentRow = row; currentRow < ROWS && !breakOut; currentRow++) {
+		for(int currentCol = col - 1; currentCol >= 0 && !breakOut; currentCol--) {
+			for(int currentRow = row + 1; currentRow < ROWS && !breakOut; currentRow++) {
 				if(board[currentRow][currentCol] == player) {
 					topLeftScore++;
 				}
@@ -385,8 +396,8 @@ public class Connect4 {
 		}
 		
 		breakOut = false;
-		for(int currentCol = col; currentCol < COLS && !breakOut; currentCol++) {
-			for(int currentRow = row; currentRow < ROWS && !breakOut; currentRow++) {
+		for(int currentCol = col + 1; currentCol < COLS && !breakOut; currentCol++) {
+			for(int currentRow = row + 1; currentRow < ROWS && !breakOut; currentRow++) {
 				if(board[currentRow][currentCol] == player) {
 					topRightScore++;
 				}
@@ -397,8 +408,8 @@ public class Connect4 {
 		}
 		
 		breakOut = false;
-		for(int currentCol = col; currentCol >= 0 && !breakOut; currentCol--) {
-			for(int currentRow = row; currentRow >= 0 && !breakOut; currentRow--) {
+		for(int currentCol = col - 1; currentCol >= 0 && !breakOut; currentCol--) {
+			for(int currentRow = row - 1; currentRow >= 0 && !breakOut; currentRow--) {
 				if(board[currentRow][currentCol] == player) {
 					bottomLeftScore++;
 				}
@@ -409,8 +420,8 @@ public class Connect4 {
 		}
 		
 		breakOut = false;
-		for(int currentCol = col; currentCol < COLS && !breakOut; currentCol++) {
-			for(int currentRow = row; currentRow >= 0 && !breakOut; currentRow--) {
+		for(int currentCol = col + 1; currentCol < COLS && !breakOut; currentCol++) {
+			for(int currentRow = row - 1; currentRow >= 0 && !breakOut; currentRow--) {
 				if(board[currentRow][currentCol] == player) {
 					bottomRightScore++;
 				}
@@ -420,31 +431,23 @@ public class Connect4 {
 			}
 		}
 		
-		if(topLeftScore == 2) {
-			topLeftScore *= 3;
-		} else if (topLeftScore == 3) {
-			topLeftScore *= 100;
-		}
+		if(topLeftScore == 2) topLeftScore = 10;
+		else if (topLeftScore == 3) topLeftScore = 100;
 		
-		if(topRightScore == 2) {
-			topRightScore *= 3;
-		} else if (topRightScore == 3) {
-			topRightScore *= 100;
-		}
+		if(topRightScore == 2) topRightScore = 10;
+		else if (topRightScore == 3) topRightScore = 100;
 		
-		if(bottomLeftScore == 2) {
-			bottomLeftScore *= 3;
-		} else if (bottomLeftScore == 3) {
-			bottomLeftScore *= 100;
-		}
+		if(bottomLeftScore == 2) bottomLeftScore = 10;
+		else if (bottomLeftScore == 3) bottomLeftScore = 100;
 		
-		if(bottomRightScore == 2) {
-			bottomRightScore *= 3;
-		} else if (bottomRightScore == 3) {
-			bottomRightScore *= 100;
-		}
+		if(bottomRightScore == 2) bottomRightScore = 10;
+		else if (bottomRightScore == 3) bottomRightScore = 100;
 		
-		return topLeftScore + topRightScore + bottomLeftScore + bottomRightScore;
+		//float midMultiplier = 2 - (Math.abs(3 - col) / 6);
+		
+		//return (int)((topLeftScore + topRightScore + bottomLeftScore + bottomRightScore) * midMultiplier);
+		
+		return topLeftScore * topRightScore * bottomLeftScore * bottomRightScore;
 	}
 
 

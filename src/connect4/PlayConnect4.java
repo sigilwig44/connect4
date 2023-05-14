@@ -102,23 +102,6 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 						if(game.isValidMove(col)) {
 							game.addChip(col);
 							updateDisplay(game.getLastRow(), game.getLastCol());
-							gameOver = game.checkForWin();
-							if(gameOver == 0) {
-								message.setText("AI Player's Turn!");
-								game = aiAgent.makeMove(game, 7);
-								updateDisplay(game.getLastRow(), game.getLastCol());
-								gameOver = game.checkForWin();
-							}
-							if (gameOver == 0) {
-								message.setText("Player " + game.getPlayer() + "'s turn!");
-							}
-							else if (gameOver == -1) {
-								message.setText("Game over! It's a tie!");
-							}
-							else {
-								message.setText("Game over! Player " + gameOver + " wins!");
-							}
-							return;
 						}
 						else {
 							message.setText("Invalid move!");
@@ -126,6 +109,22 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 					}
 				}
 			}
+		}
+		gameOver = game.checkForWin();
+		if(gameOver == 0) {
+			message.setText("AI Player's Turn!");
+			game = aiAgent.makeMove(game, 7);
+			updateDisplay(game.getLastRow(), game.getLastCol());
+			gameOver = game.checkForWin();
+		}
+		if (gameOver == 0) {
+			message.setText("Player " + game.getPlayer() + "'s turn!");
+		}
+		else if (gameOver == -1) {
+			message.setText("Game over! It's a tie!");
+		}
+		else {
+			message.setText("Game over! Player " + gameOver + " wins!");
 		}
 	}
 	
@@ -149,35 +148,39 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 	 * based on who occupies the space
 	 */
 	public void updateDisplay(int row, int col) {
-		if(game.getBoard()[row][col] == 1) {
-			space[row][col].setStyle(
-					"-fx-background-color: #e63326; " +
-					"-fx-background-radius: 5em; " +
-	                "-fx-min-width: 60px; " +
-	                "-fx-min-height: 60px; " +
-	                "-fx-max-width: 60px; " +
-	                "-fx-max-height: 60px;"
-			);
-		}
-		else if(game.getBoard()[row][col] == 2) {
-			space[row][col].setStyle(
-					"-fx-background-color: #f5d80c; " +
-					"-fx-background-radius: 5em; " +
-	                "-fx-min-width: 60px; " +
-	                "-fx-min-height: 60px; " +
-	                "-fx-max-width: 60px; " +
-	                "-fx-max-height: 60px;"
-			);
-		}
-		else {
-			space[row][col].setStyle(
-					"-fx-background-color: #e4e4e4; " +
-					"-fx-background-radius: 5em; " +
-	                "-fx-min-width: 60px; " +
-	                "-fx-min-height: 60px; " +
-	                "-fx-max-width: 60px; " +
-	                "-fx-max-height: 60px;"
-			);
+		for(row = 0; row < Connect4.ROWS; row++) {
+			for(col = 0; col < Connect4.COLS; col++) {
+				if(game.getBoard()[row][col] == 1) {
+					space[row][col].setStyle(
+							"-fx-background-color: #e63326; " +
+							"-fx-background-radius: 5em; " +
+			                "-fx-min-width: 60px; " +
+			                "-fx-min-height: 60px; " +
+			                "-fx-max-width: 60px; " +
+			                "-fx-max-height: 60px;"
+					);
+				}
+				else if(game.getBoard()[row][col] == 2) {
+					space[row][col].setStyle(
+							"-fx-background-color: #f5d80c; " +
+							"-fx-background-radius: 5em; " +
+			                "-fx-min-width: 60px; " +
+			                "-fx-min-height: 60px; " +
+			                "-fx-max-width: 60px; " +
+			                "-fx-max-height: 60px;"
+					);
+				}
+				else {
+					space[row][col].setStyle(
+							"-fx-background-color: #e4e4e4; " +
+							"-fx-background-radius: 5em; " +
+			                "-fx-min-width: 60px; " +
+			                "-fx-min-height: 60px; " +
+			                "-fx-max-width: 60px; " +
+			                "-fx-max-height: 60px;"
+					);
+				}
+			}
 		}
 	}
 }

@@ -2,9 +2,9 @@ package connect4;
 
 public class Connect4Player {
 	
-	private final int MAXPLAYER = 2;
+	public static final int MAXPLAYER = 2;
 	
-	private final int MINPLAYER = 1;
+	public static final int MINPLAYER = 1;
 	
 	public Connect4 makeMove(Connect4 gameState, int depth)
 	{
