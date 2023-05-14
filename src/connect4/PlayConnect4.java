@@ -1,6 +1,7 @@
 package connect4;
 
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -18,6 +19,7 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 	/** Connect4 game object which keeps track of game state */
 	private Connect4 game;
 	
+	/** AI Agent which makes game decisions for the next move to make */
 	private Connect4Player aiAgent = new Connect4Player();
 	
 	/** Array of buttons displayed in the Connect 4 GUI*/
@@ -31,6 +33,9 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 	
 	/** Keeps track of whether the game is in progress and the winner */
 	private static int gameOver = 0;
+	
+	/** Human player's number */
+	private static int HUMANPLAYER = 1;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -49,7 +54,7 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 		message.setMaxSize(425, 28);
 		message.setEditable(false);
 		message.setWrapText(true);
-		message.setText("Player " + game.getPlayer() + "'s turn!");
+		message.setText("Your turn!");
 		reset.setMinSize(75, 28);
 		reset.setMaxSize(75, 28);
 		reset.setOnAction(this);
@@ -99,9 +104,21 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 			for(int row = 0; row < Connect4.ROWS; row++) {
 				for(int col = 0; col < Connect4.COLS; col++) {
 					if(ev.getSource() == space[row][col]) {
-						if(game.isValidMove(col)) {
+						if(game.isValidMove(col) && game.getPlayer() == HUMANPLAYER) {
 							game.addChip(col);
-							updateDisplay(game.getLastRow(), game.getLastCol());
+							updateDisplay();
+							gameOver = game.checkForWin();
+							if (gameOver == 0) {
+								message.setText("Your turn!");
+							}
+							else if (gameOver == -1) {
+								message.setText("Game over! It's a tie!");
+							}
+							else if(gameOver == HUMANPLAYER) {
+								message.setText("Game over! You win!");
+							} else {
+								message.setText("Game over! The AI player won!");
+							}
 						}
 						else {
 							message.setText("Invalid move!");
@@ -113,18 +130,27 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 		gameOver = game.checkForWin();
 		if(gameOver == 0) {
 			message.setText("AI Player's Turn!");
-			game = aiAgent.makeMove(game, 7);
-			updateDisplay(game.getLastRow(), game.getLastCol());
-			gameOver = game.checkForWin();
-		}
-		if (gameOver == 0) {
-			message.setText("Player " + game.getPlayer() + "'s turn!");
-		}
-		else if (gameOver == -1) {
-			message.setText("Game over! It's a tie!");
-		}
-		else {
-			message.setText("Game over! Player " + gameOver + " wins!");
+			Task<Void> updateTask = new Task<Void>() {
+			    @Override
+			    protected Void call() throws Exception {
+			    	game = aiAgent.makeMove(game, 7);
+			    	updateDisplay();
+					gameOver = game.checkForWin();
+					if (gameOver == 0) {
+						message.setText("Your turn!");
+					}
+					else if (gameOver == -1) {
+						message.setText("Game over! It's a tie!");
+					}
+					else if(gameOver == HUMANPLAYER) {
+						message.setText("Game over! You win!");
+					} else {
+						message.setText("Game over! The AI player won!");
+					}
+			        return null;
+			    }
+			};
+			new Thread(updateTask).start();
 		}
 	}
 	
@@ -135,51 +161,58 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 	public void reset() {
 		game = new Connect4();
 		gameOver = 0;
-		message.setText("Player " + game.getPlayer() + "'s turn!");
-		for(int row = 0; row < Connect4.ROWS; row++) {
-			for(int col = 0; col < Connect4.COLS; col++) {
-				updateDisplay(row, col);
-			}
-		}
+		message.setText("Your turn!");
+		resetDisplay();
 	}
 	
 	/**
 	 * Update all the buttons to display the correct color
 	 * based on who occupies the space
 	 */
-	public void updateDisplay(int row, int col) {
-		for(row = 0; row < Connect4.ROWS; row++) {
-			for(col = 0; col < Connect4.COLS; col++) {
-				if(game.getBoard()[row][col] == 1) {
-					space[row][col].setStyle(
-							"-fx-background-color: #e63326; " +
-							"-fx-background-radius: 5em; " +
-			                "-fx-min-width: 60px; " +
-			                "-fx-min-height: 60px; " +
-			                "-fx-max-width: 60px; " +
-			                "-fx-max-height: 60px;"
-					);
-				}
-				else if(game.getBoard()[row][col] == 2) {
-					space[row][col].setStyle(
-							"-fx-background-color: #f5d80c; " +
-							"-fx-background-radius: 5em; " +
-			                "-fx-min-width: 60px; " +
-			                "-fx-min-height: 60px; " +
-			                "-fx-max-width: 60px; " +
-			                "-fx-max-height: 60px;"
-					);
-				}
-				else {
-					space[row][col].setStyle(
-							"-fx-background-color: #e4e4e4; " +
-							"-fx-background-radius: 5em; " +
-			                "-fx-min-width: 60px; " +
-			                "-fx-min-height: 60px; " +
-			                "-fx-max-width: 60px; " +
-			                "-fx-max-height: 60px;"
-					);
-				}
+	public void updateDisplay() {
+		if(game.getBoard()[game.getLastRow()][game.getLastCol()] == 1) {
+			space[game.getLastRow()][game.getLastCol()].setStyle(
+					"-fx-background-color: #e63326; " +
+					"-fx-background-radius: 5em; " +
+	                "-fx-min-width: 60px; " +
+	                "-fx-min-height: 60px; " +
+	                "-fx-max-width: 60px; " +
+	                "-fx-max-height: 60px;"
+			);
+		}
+		else if(game.getBoard()[game.getLastRow()][game.getLastCol()] == 2) {
+			space[game.getLastRow()][game.getLastCol()].setStyle(
+					"-fx-background-color: #f5d80c; " +
+					"-fx-background-radius: 5em; " +
+	                "-fx-min-width: 60px; " +
+	                "-fx-min-height: 60px; " +
+	                "-fx-max-width: 60px; " +
+	                "-fx-max-height: 60px;"
+			);
+		}
+		else {
+			space[game.getLastRow()][game.getLastCol()].setStyle(
+					"-fx-background-color: #e4e4e4; " +
+					"-fx-background-radius: 5em; " +
+	                "-fx-min-width: 60px; " +
+	                "-fx-min-height: 60px; " +
+	                "-fx-max-width: 60px; " +
+	                "-fx-max-height: 60px;"
+			);
+		}
+	}
+	
+	public void resetDisplay() {
+		for(int row = 0; row < Connect4.ROWS; row++) {
+			for(int col = 0; col < Connect4.COLS; col++) {
+				space[row][col].setStyle(
+						"-fx-background-color: #e4e4e4; " +
+						"-fx-background-radius: 5em; " +
+		                "-fx-min-width: 60px; " +
+		                "-fx-min-height: 60px; " +
+		                "-fx-max-width: 60px; " +
+		                "-fx-max-height: 60px;"
+				);
 			}
 		}
 	}
