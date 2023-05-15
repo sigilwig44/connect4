@@ -107,18 +107,6 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 						if(game.isValidMove(col) && game.getPlayer() == HUMANPLAYER) {
 							game.addChip(col);
 							updateDisplay();
-							gameOver = game.checkForWin();
-							if (gameOver == 0) {
-								message.setText("Your turn!");
-							}
-							else if (gameOver == -1) {
-								message.setText("Game over! It's a tie!");
-							}
-							else if(gameOver == HUMANPLAYER) {
-								message.setText("Game over! You win!");
-							} else {
-								message.setText("Game over! The AI player won!");
-							}
 						}
 						else {
 							message.setText("Invalid move!");
@@ -127,7 +115,7 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 				}
 			}
 		}
-		gameOver = game.checkForWin();
+		
 		if(gameOver == 0) {
 			message.setText("AI Player's Turn!");
 			Task<Void> updateTask = new Task<Void>() {
@@ -135,25 +123,12 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 			    protected Void call() throws Exception {
 			    	game = aiAgent.makeMove(game, 7);
 			    	updateDisplay();
-					gameOver = game.checkForWin();
-					if (gameOver == 0) {
-						message.setText("Your turn!");
-					}
-					else if (gameOver == -1) {
-						message.setText("Game over! It's a tie!");
-					}
-					else if(gameOver == HUMANPLAYER) {
-						message.setText("Game over! You win!");
-					} else {
-						message.setText("Game over! The AI player won!");
-					}
 			        return null;
 			    }
 			};
 			new Thread(updateTask).start();
 		}
 	}
-	
 	
 	/**
 	 * Reset the game and start over
@@ -170,6 +145,19 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 	 * based on who occupies the space
 	 */
 	public void updateDisplay() {
+		gameOver = game.checkForWin();
+		if (gameOver == 0) {
+			message.setText("Your turn!");
+		}
+		else if (gameOver == -1) {
+			message.setText("Game over! It's a tie!");
+		}
+		else if(gameOver == HUMANPLAYER) {
+			message.setText("Game over! You win!");
+		} else {
+			message.setText("Game over! The AI player won!");
+		}
+		
 		if(game.getBoard()[game.getLastRow()][game.getLastCol()] == 1) {
 			space[game.getLastRow()][game.getLastCol()].setStyle(
 					"-fx-background-color: #e63326; " +
@@ -202,6 +190,9 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 		}
 	}
 	
+	/**
+	 * Reset the board to display all empty spaces
+	 */
 	public void resetDisplay() {
 		for(int row = 0; row < Connect4.ROWS; row++) {
 			for(int col = 0; col < Connect4.COLS; col++) {

@@ -43,6 +43,10 @@ public class Connect4 {
 		player = 1;
 	}
 	
+	/**
+	 * Copy constructor
+	 * @param original game to be copied
+	 */
 	public Connect4(Connect4 original) {
 		board = new int[ROWS][COLS];
 		for(int row = 0; row < ROWS; row++) {
@@ -288,6 +292,10 @@ public class Connect4 {
 		return false;
 	}
 	
+	/**
+	 * Scores a specific Connect4 Game
+	 * @return score for the game
+	 */
 	public int getScore() {
 		int winner = checkForWin();
 		if(winner == 0) {
@@ -295,9 +303,10 @@ public class Connect4 {
 			for(int col = 0; col < COLS; col++) {
 				for(int row = 0; row < ROWS; row++) {
 					if(board[row][col] == EMPTY) {
-						totalScore += getVerticalScore(row, col, Connect4Player.MAXPLAYER)*1.1;
-						totalScore += getHorizontalScore(row, col, Connect4Player.MAXPLAYER)*1.1;
-						totalScore += getDiagonalScore(row, col, Connect4Player.MAXPLAYER)*1.1;
+						// Add weight to the max player's scores to weight the AI to be defensive
+						totalScore += getVerticalScore(row, col, Connect4Player.MAXPLAYER)*1.2;
+						totalScore += getHorizontalScore(row, col, Connect4Player.MAXPLAYER)*1.2;
+						totalScore += getDiagonalScore(row, col, Connect4Player.MAXPLAYER)*1.2;
 						totalScore -= getVerticalScore(row, col, Connect4Player.MINPLAYER);
 						totalScore -= getHorizontalScore(row, col, Connect4Player.MINPLAYER);
 						totalScore -= getDiagonalScore(row, col, Connect4Player.MINPLAYER);
@@ -307,14 +316,21 @@ public class Connect4 {
 			}
 			return totalScore;
 		} else if(winner == Connect4Player.MAXPLAYER){
-			return 2000;
+			return 1000;
 		} else if(winner == Connect4Player.MINPLAYER) {
-			return -2000;
+			return -1000;
 		} else {
 			return 0;
 		}
 	}
 	
+	/**
+	 * Gets the score on the vertical
+	 * @param row of the space to calculate score for
+	 * @param col of the space to calculate score for
+	 * @param player to calculate score for
+	 * @return vertical score
+	 */
 	public int getVerticalScore(int row, int col, int player) {
 		int verticalScore = 0;
 		for(int currentRow = row - 1; currentRow >= 0; currentRow--) {
@@ -326,19 +342,30 @@ public class Connect4 {
 			}
 		}
 		
-		if(verticalScore == 2) verticalScore = 20;
-		else if(verticalScore == 3) verticalScore = 200;
+		if(verticalScore == 2) verticalScore = 4;
+		else if(verticalScore == 3) verticalScore = 500;
 		
 		return verticalScore;
 	}
 	
+	/**
+	 * Gets the score on the horizontal
+	 * @param row of the space to calculate score for
+	 * @param col of the space to calculate score for
+	 * @param player to calculate score for
+	 * @return vertical score
+	 */
 	public int getHorizontalScore(int row, int col, int player) {
 		int leftScore = 0;
 		int rightScore = 0;
+		int multiplier = 1;
 		//Check to the left first
 		for(int currentCol = col - 1; currentCol >= 0; currentCol--) {
 			if(board[row][currentCol] == player) {
 				leftScore++;
+			}
+			else if(board[row][currentCol] == EMPTY) {
+				multiplier = 100;
 			}
 			else {
 				break;
@@ -351,22 +378,31 @@ public class Connect4 {
 			if(board[row][currentCol] == player) {
 				rightScore++;
 			}
+			else if(board[row][currentCol] == EMPTY) {
+				multiplier = 100;
+			}
 			else {
 				break;
 			}
 		}
 		
-		if(rightScore == 1) rightScore = 8;
-		else if(rightScore == 2) rightScore = 20;
-		else if(rightScore == 3) rightScore = 200;
+		if(rightScore == 1) rightScore = 9;
+		else if(rightScore == 2) rightScore = 400;
+		else if(rightScore == 3) rightScore = 500 * multiplier;
 		
-		if(leftScore == 1) leftScore = 8;
-		else if(leftScore == 2) leftScore = 20;
-		else if(leftScore == 3) leftScore = 200;
-		
+		if(leftScore == 1) leftScore = 9;
+		else if(leftScore == 2) leftScore = 400;
+		else if(leftScore == 3) leftScore = 500 * multiplier;
 		return leftScore * rightScore;
 	}
 	
+	/**
+	 * Gets the score on the diagonals
+	 * @param row of the space to calculate score for
+	 * @param col of the space to calculate score for
+	 * @param player to calculate score for
+	 * @return vertical score
+	 */
 	public int getDiagonalScore(int row, int col, int player) {
 		int topLeftScore = 0;
 		int topRightScore = 0;
@@ -421,21 +457,21 @@ public class Connect4 {
 			}
 		}
 		
-		if(topLeftScore == 1) topLeftScore = 8;
-		else if(topLeftScore == 2) topLeftScore = 20;
-		else if (topLeftScore == 3) topLeftScore = 200;
+		if(topLeftScore == 1) topLeftScore = 9;
+		else if(topLeftScore == 2) topLeftScore = 200;
+		else if (topLeftScore == 3) topLeftScore = 500;
 		
-		if(topRightScore == 1) topRightScore = 8;
-		else if(topRightScore == 2) topRightScore = 20;
-		else if (topRightScore == 3) topRightScore = 200;
+		if(topRightScore == 1) topRightScore = 9;
+		else if(topRightScore == 2) topRightScore = 200;
+		else if (topRightScore == 3) topRightScore = 500;
 		
-		if(bottomLeftScore == 1) bottomLeftScore = 8;
-		else if(bottomLeftScore == 2) bottomLeftScore = 20;
-		else if (bottomLeftScore == 3) bottomLeftScore = 200;
+		if(bottomLeftScore == 1) bottomLeftScore = 9;
+		else if(bottomLeftScore == 2) bottomLeftScore = 200;
+		else if (bottomLeftScore == 3) bottomLeftScore = 500;
 		
-		if(bottomRightScore == 1) bottomRightScore = 8;
-		else if(bottomRightScore == 2) bottomRightScore = 20;
-		else if (bottomRightScore == 3) bottomRightScore = 200;
+		if(bottomRightScore == 1) bottomRightScore = 9;
+		else if(bottomRightScore == 2) bottomRightScore = 200;
+		else if (bottomRightScore == 3) bottomRightScore = 500;
 		
 		return topLeftScore * topRightScore * bottomLeftScore * bottomRightScore;
 	}
