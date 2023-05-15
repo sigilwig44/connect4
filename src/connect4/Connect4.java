@@ -304,15 +304,18 @@ public class Connect4 {
 				for(int row = 0; row < ROWS; row++) {
 					if(board[row][col] == EMPTY) {
 						// Add weight to the max player's scores to weight the AI to be defensive
-						totalScore += getVerticalScore(row, col, Connect4Player.MAXPLAYER)*1.2;
-						totalScore += getHorizontalScore(row, col, Connect4Player.MAXPLAYER)*1.2;
-						totalScore += getDiagonalScore(row, col, Connect4Player.MAXPLAYER)*1.2;
+						totalScore += getVerticalScore(row, col, Connect4Player.MAXPLAYER)*1.27;
+						totalScore += getHorizontalScore(row, col, Connect4Player.MAXPLAYER)*1.27;
+						totalScore += getDiagonalScore(row, col, Connect4Player.MAXPLAYER)*1.27;
 						totalScore -= getVerticalScore(row, col, Connect4Player.MINPLAYER);
 						totalScore -= getHorizontalScore(row, col, Connect4Player.MINPLAYER);
 						totalScore -= getDiagonalScore(row, col, Connect4Player.MINPLAYER);
 						break;
 					}
 				}
+			}
+			if(lastCol == 3 && lastRow == 0) { // Weight starting in the center highly
+				totalScore *= 10;
 			}
 			return totalScore;
 		} else if(winner == Connect4Player.MAXPLAYER){
@@ -365,7 +368,7 @@ public class Connect4 {
 				leftScore++;
 			}
 			else if(board[row][currentCol] == EMPTY) {
-				multiplier = 100;
+				multiplier = 300;
 			}
 			else {
 				break;
@@ -379,7 +382,7 @@ public class Connect4 {
 				rightScore++;
 			}
 			else if(board[row][currentCol] == EMPTY) {
-				multiplier = 100;
+				multiplier = 300;
 			}
 			else {
 				break;
@@ -387,12 +390,12 @@ public class Connect4 {
 		}
 		
 		if(rightScore == 1) rightScore = 9;
-		else if(rightScore == 2) rightScore = 400;
-		else if(rightScore == 3) rightScore = 500 * multiplier;
+		else if(rightScore == 2) rightScore = 350;
+		else if(rightScore == 3) rightScore = 500 + multiplier;
 		
 		if(leftScore == 1) leftScore = 9;
-		else if(leftScore == 2) leftScore = 400;
-		else if(leftScore == 3) leftScore = 500 * multiplier;
+		else if(leftScore == 2) leftScore = 350;
+		else if(leftScore == 3) leftScore = 500 + multiplier;
 		return leftScore * rightScore;
 	}
 	

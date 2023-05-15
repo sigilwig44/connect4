@@ -1,6 +1,7 @@
 package connect4;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -122,7 +123,7 @@ public class PlayConnect4 extends Application implements EventHandler<ActionEven
 			    @Override
 			    protected Void call() throws Exception {
 			    	game = aiAgent.makeMove(game, 7);
-			    	updateDisplay();
+			    	Platform.runLater(() -> updateDisplay());
 			        return null;
 			    }
 			};
